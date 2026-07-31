@@ -758,16 +758,16 @@
     <div class="lock-logo">A</div>
     <div class="lock-brand">LiveAdaptiv</div>
     <div class="lock-title">Stress Transformation Workbook</div>
-    <div class="lock-desc">Secured Clinical Protocol.<br>Enter your access cipher.</div>
+    <div class="lock-desc">Secured Clinical Protocol.<br>Enter your access cipher or license key.</div>
     <input
       type="password"
       id="cipher-input"
       class="lock-input"
-      placeholder="ENTER CIPHER"
+      placeholder="CIPHER OR LICENSE KEY"
       autocomplete="off"
       spellcheck="false"
     >
-    <div id="lock-error" class="lock-error">Invalid cipher. Access denied.</div>
+    <div id="lock-error" class="lock-error">Access denied. Check your cipher or license key.</div>
     <button id="auth-btn" class="lock-btn" onclick="authenticate()">Authenticate</button>
     <p style="font-size:10px; margin-top:20px; color:#57534e; text-transform:none; letter-spacing:normal; line-height:1.5;">
       Self-guided reflection tool — not therapy or medical advice. In crisis, call or text 988.
@@ -847,7 +847,7 @@ async function authenticate() {
     const data = await res.json();
 
     if (data.success) {
-      sessionStorage.setItem('la_workbook_token', data.token);
+      localStorage.setItem('la_workbook_token', data.token);
       unlockApp();
     } else {
       showAuthError();
@@ -886,7 +886,7 @@ function unlockApp() {
 
 async function loadWorkbookContent() {
   const mount = document.getElementById('main-content');
-  const token = sessionStorage.getItem('la_workbook_token');
+  const token = localStorage.getItem('la_workbook_token');
 
   try {
     const res = await fetch('/api/workbook-content', {
@@ -897,7 +897,7 @@ async function loadWorkbookContent() {
     if (!res.ok) {
       mount.innerHTML = '<div id="content-error" style="padding:120px 10% 80px; text-align:center; color:var(--text-muted); font-family:var(--font-sans); font-size:0.9rem;"></div>';
       document.getElementById('content-error').textContent = data.error || 'Could not load your workbook.';
-      if (res.status === 401) sessionStorage.removeItem('la_workbook_token');
+      if (res.status === 401) localStorage.removeItem('la_workbook_token');
       return;
     }
 
@@ -933,7 +933,7 @@ document.getElementById('cipher-input').addEventListener('keypress', e => {
 
 // Check existing session
 window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('la_workbook_token')) {
+  if (localStorage.getItem('la_workbook_token')) {
     document.getElementById('lock-screen').style.display = 'none';
     loadWorkbookContent();
   }
