@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 module.exports = function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -28,10 +30,25 @@ module.exports = function handler(req, res) {
   }
 
   if (validCiphers.includes(input)) {
-    return res.status(200).json({ success: true, token: Date.now().toString(36) });
+    return res.status(200).json({ success: true, token: generateToken() });
   }
 
   // Rate limiting note: for production, add IP-based rate limiting here
   // e.g. using Vercel KV or Upstash Redis to track failed attempts.
   return res.status(401).json({ success: false });
+}
+
+function generateToken() {
+  // Signed, timestamped session token verified by api/workbook-content.js —
+  // this is what actually gates the workbook content now, not just the lock
+  // screen overlay. SETUP: set SESSION_SECRET in Vercel env vars; without it
+  // this issues an unsigned token that api/workbook-content.js will reject.
+  const issuedAt = Date.now().toString();
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    console.warn('No SESSION_SECRET set. Issuing unsigned token — /api/workbook-content will reject it until SESSION_SECRET is configured.');
+    return `${issuedAt}.unsigned`;
+  }
+  const signature = crypto.createHmac('sha256', secret).update(issuedAt).digest('hex');
+  return `${issuedAt}.${signature}`;
 }
