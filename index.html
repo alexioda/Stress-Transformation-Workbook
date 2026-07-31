@@ -769,7 +769,10 @@
     >
     <div id="lock-error" class="lock-error">Invalid cipher. Access denied.</div>
     <button id="auth-btn" class="lock-btn" onclick="authenticate()">Authenticate</button>
-    <p style="font-size:10px; margin-top:20px; color:#3a3632; text-transform:uppercase; letter-spacing:1px;">
+    <p style="font-size:10px; margin-top:20px; color:#57534e; text-transform:none; letter-spacing:normal; line-height:1.5;">
+      Self-guided reflection tool — not therapy or medical advice. In crisis, call or text 988.
+    </p>
+    <p style="font-size:10px; margin-top:12px; color:#3a3632; text-transform:uppercase; letter-spacing:1px;">
       © 2026 LiveAdaptiv
     </p>
   </div>
@@ -807,7 +810,7 @@
   <div class="nav-footer">
     <strong style="color:var(--charcoal)">LiveAdaptiv</strong><br>
     Designed by Alex Ioda<br>
-    <a href="https://liveadaptiv.com">liveadaptiv.com</a>
+    <a href="https://liveadaptiv.com">liveadaptiv.com</a> · <a href="https://liveadaptiv.com/privacy.html">Privacy</a>
   </div>
 </nav>
 
@@ -844,7 +847,7 @@
     <p>Before we touch philosophy, we must ground ourselves in biology. You have been told that stress kills. This is the half-truth.</p>
 
     <div class="concept-box">
-      <div class="concept-header"><span class="tag">Research</span> The 1998 Keller Study</div>
+      <div class="concept-header"><span class="tag">Research</span> The 2012 Keller Study</div>
       <p>Researchers tracked 30,000 adults for 8 years. <strong>Result:</strong> High stress increased the risk of death by 43% — but <em>only</em> for those who believed it was harmful. Those with high stress who viewed it as a challenge had the <em>lowest</em> death rate of anyone in the study.</p>
     </div>
 
@@ -1123,7 +1126,7 @@
                font-size:0.9rem; border-radius:50px; cursor:pointer; letter-spacing:2px;
                font-weight:700; text-transform:uppercase; font-family:var(--font-sans);
                box-shadow:0 4px 15px rgba(0,0,0,0.12); transition:all 0.3s;">
-        Save Your Blueprint (PDF)
+        Print / Save as PDF
       </button>
     </div>
 
@@ -1195,13 +1198,9 @@ async function authenticate() {
       showAuthError();
     }
   } catch (e) {
-    // Dev fallback — no serverless endpoint available locally
-    console.warn('Auth endpoint unavailable. Dev fallback active.');
-    if (input.toUpperCase() === 'DEVMODE') {
-      unlockApp();
-    } else {
-      showAuthError();
-    }
+    console.warn('Authentication communication error:', e);
+    errEl.textContent = 'Connection error. Check your network and try again.';
+    errEl.style.display = 'block';
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Authenticate';
